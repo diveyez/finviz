@@ -66,7 +66,7 @@ def get_page_urls(page_content, rows, url):
 
         if sequence - 20 <= rows < sequence:
             break
-        urls.append(url + f"&r={str(sequence)}")
+        urls.append(f"{url}&r={str(sequence)}")
 
     return urls
 
@@ -153,11 +153,11 @@ def download_ticker_details(page_content: requests.Response, **kwargs):
     ]
 
     for row in all_rows:
-        for column in range(0, 11):
+        for column in range(11):
             if column % 2 == 0:
                 data[row[column]] = row[column + 1]
 
-    if len(data) == 0:
+    if not data:
         print(f"-> Unable to parse page for ticker: {ticker}")
 
     return {ticker: [data, get_analyst_price_targets_for_export(ticker, page_parsed)]}

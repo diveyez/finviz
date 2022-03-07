@@ -126,10 +126,11 @@ class Connector:
         timeout = aiohttp.ClientTimeout(total=connection_settings["CONNECTION_TIMEOUT"])
 
         async with aiohttp.ClientSession(
-            connector=conn, timeout=timeout, headers={"User-Agent": self.user_agent}
-        ) as session:
-            for url in self.urls:
-                async_tasks.append(self.__http_request__async(url, session))
+                connector=conn, timeout=timeout, headers={"User-Agent": self.user_agent}
+            ) as session:
+            async_tasks.extend(
+                self.__http_request__async(url, session) for url in self.urls
+            )
 
             self.data = await asyncio.gather(*async_tasks)
 

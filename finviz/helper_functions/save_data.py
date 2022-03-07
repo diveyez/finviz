@@ -8,8 +8,7 @@ def create_connection(sqlite_file):
     """ Creates a database connection. """
 
     try:
-        conn = sqlite3.connect(sqlite_file)
-        return conn
+        return sqlite3.connect(sqlite_file)
     except sqlite3.Error as error:
         raise (
             "An error has occurred while connecting to the database: ",
@@ -53,7 +52,7 @@ def export_to_db(headers, data, filename):
         field_cleaned = field_cleaned.replace("50DLow", "Low50D")
         field_cleaned = field_cleaned.replace("52WHigh", "High52W")
         field_cleaned = field_cleaned.replace("52WLow", "Low52W")
-        field_list += field_cleaned + " TEXT, "
+        field_list += f'{field_cleaned} TEXT, '
 
     c.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({field_list[:-2]});")
 
@@ -65,7 +64,7 @@ def export_to_db(headers, data, filename):
 
             insert_fields += '"' + value + '", '
 
-        inserts += insert_fields[:-2] + "), "
+        inserts += f'{insert_fields[:-2]}), '
 
     insert_lines = inserts[:-2]
 

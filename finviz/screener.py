@@ -51,7 +51,7 @@ class Screener(object):
         table = "Overview"
         if "v" in split_query:
             table_numbers_types = {v: k for k, v in TABLE_TYPES.items()}
-            table_number_string = split_query["v"][0][0:3]
+            table_number_string = split_query["v"][0][:3]
             try:
                 table = table_numbers_types[table_number_string]
             except KeyError:
@@ -92,21 +92,9 @@ class Screener(object):
         :type self.data: list
         """
 
-        if tickers is None:
-            self._tickers = []
-        else:
-            self._tickers = tickers
-
-        if filters is None:
-            self._filters = []
-        else:
-            self._filters = filters
-
-        if table is None:
-            self._table = "111"
-        else:
-            self._table = self.__check_table(table)
-
+        self._tickers = [] if tickers is None else tickers
+        self._filters = [] if filters is None else filters
+        self._table = "111" if table is None else self.__check_table(table)
         if custom is None:
             self._custom = []
         else:
@@ -178,8 +166,9 @@ class Screener(object):
 
         table_list = [self.headers]
 
-        for row in self.data:
-            table_list.append([row[col] or "" for col in self.headers])
+        table_list.extend(
+            [row[col] or "" for col in self.headers] for row in self.data
+        )
 
         return create_table_string(table_list)
 
@@ -215,8 +204,7 @@ class Screener(object):
         """ Checks if the user input for table type is correct. Otherwise, raises an InvalidTableType error. """
 
         try:
-            table = TABLE_TYPES[input_table]
-            return table
+            return TABLE_TYPES[input_table]
         except KeyError:
             raise InvalidTableType(input_table)
 
@@ -457,7 +445,5 @@ class Screener(object):
 
         data = []
         for page in pages_data:
-            for row in page:
-                data.append(row)
-
+            data.extend(iter(page))
         return data

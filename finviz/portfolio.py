@@ -74,8 +74,9 @@ class Portfolio(object):
 
         table_list = [PORTFOLIO_HEADERS]
 
-        for row in self.data:
-            table_list.append([row[col] or "" for col in PORTFOLIO_HEADERS])
+        table_list.extend(
+            [row[col] or "" for col in PORTFOLIO_HEADERS] for row in self.data
+        )
 
         return create_table_string(table_list)
 
@@ -105,15 +106,15 @@ class Portfolio(object):
 
             for row_number, row in enumerate(reader, 0):
                 row_number_string = str(row_number)
-                data["ticker" + row_number_string] = row[0]
-                data["transaction" + row_number_string] = row[1]
-                data["date" + row_number_string] = row[2]
-                data["shares" + row_number_string] = row[3]
+                data[f"ticker{row_number_string}"] = row[0]
+                data[f"transaction{row_number_string}"] = row[1]
+                data[f"date{row_number_string}"] = row[2]
+                data[f"shares{row_number_string}"] = row[3]
 
                 try:
                     # empty string is no price, so try get today's price
-                    assert data["price" + row_number_string] != ""
-                    data["price" + row_number_string] = row[4]
+                    assert data[f"price{row_number_string}"] != ""
+                    data[f"price{row_number_string}"] = row[4]
                 except (IndexError, KeyError):
                     current_price_page, _ = http_request_get(
                         PRICE_REQUEST_URL, payload={"t": row[0]}, parse=True
@@ -123,12 +124,12 @@ class Portfolio(object):
                     if current_price_page.text == "NA":
                         if not drop_invalid_ticker:
                             raise InvalidTicker(row[0])
-                        del data["ticker" + row_number_string]
-                        del data["transaction" + row_number_string]
-                        del data["date" + row_number_string]
-                        del data["shares" + row_number_string]
+                        del data[f"ticker{row_number_string}"]
+                        del data[f"transaction{row_number_string}"]
+                        del data[f"date{row_number_string}"]
+                        del data[f"shares{row_number_string}"]
                     else:
-                        data["price" + row_number_string] = current_price_page.text
+                        data[f"price{row_number_string}"] = current_price_page.text
         self._session.post(PORTFOLIO_SUBMIT_URL, data=data)
 
     def __get_portfolio_url(self, portfolio_name):
@@ -137,7 +138,7 @@ class Portfolio(object):
         # If the user has provided an ID (Portfolio ID is always an int)
         if isinstance(portfolio_name, int):
             # Raise error for invalid portfolio ID
-            if not len(str(portfolio_name)) == PORTFOLIO_DIGIT_COUNT:
+            if len(str(portfolio_name)) != PORTFOLIO_DIGIT_COUNT:
                 raise InvalidPortfolioID(portfolio_name)
             else:
                 return http_request_get(

@@ -64,9 +64,7 @@ def get_insider(ticker):
 
     table = outer_table[0]
     headers = table[0].xpath("td//text()")
-    data = [dict(zip(headers, row.xpath("td//text()"))) for row in table[1:]]
-
-    return data
+    return [dict(zip(headers, row.xpath("td//text()"))) for row in table[1:]]
 
 
 def get_news(ticker):
@@ -89,7 +87,7 @@ def get_news(ticker):
     results = []
     date = None
     for row in rows:
-        raw_timestamp = row.xpath("./td")[0].xpath('text()')[0][0:-2]
+        raw_timestamp = row.xpath("./td")[0].xpath('text()')[0][:-2]
 
         if len(raw_timestamp) > 8:
             parsed_timestamp = datetime.strptime(raw_timestamp, "%b-%d-%y %I:%M%p")

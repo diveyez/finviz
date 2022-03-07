@@ -16,10 +16,7 @@ class TestScreener:
             filters=["sh_curvol_o300", "ta_highlow52w_b0to10h", "ind_stocksonly"]
         )
 
-        count = 0
-        for _ in stock_list:
-            count += 1
-
+        count = sum(1 for _ in stock_list)
         assert len(stock_list) == count
 
     def test_screener_stability(self):
@@ -32,10 +29,7 @@ class TestScreener:
         ]
         stock_list = Screener(filters=filters, table="Performance")
 
-        count = 0
-        for _ in stock_list:
-            count += 1
-
+        count = sum(1 for _ in stock_list)
         assert len(stock_list) == count
 
     def test_get_ticker_details_sequential_requests(self):
@@ -50,10 +44,7 @@ class TestScreener:
         )
         ticker_details = stocks.get_ticker_details()
 
-        count = 0
-        for _ in ticker_details:
-            count += 1
-
+        count = sum(1 for _ in ticker_details)
         assert len(stocks) == count == len(ticker_details)
 
     @patch("finviz.screener.scrape.download_chart_image")
@@ -69,10 +60,7 @@ class TestScreener:
             ]
         )
 
-        count = 0
-        for _ in stocks:
-            count += 1
-
+        count = sum(1 for _ in stocks)
         stocks.get_charts()
 
         for call in patched_download_chart_image.call_args_list:
